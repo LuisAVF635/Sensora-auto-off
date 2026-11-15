@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#040a20">
+    <meta name="description" content="Panel de control Bluetooth para Auto-Off Speaker de Sensora.">
+    <title>Sensora | Auto-Off Speaker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="#inicio" aria-label="Sensora, ir al inicio">
+                <span>Sensora</span>
+            </a>
+            <span class="header-caption">Control inteligente de audio</span>
+        </div>
+    </header>
+
+    <main class="app" id="inicio">
+        <section class="hero" aria-labelledby="pageTitle">
+            <span class="eyebrow">SENSORA · CONTROL BLE</span>
+            <div class="hero-line" aria-hidden="true"></div>
+            <h1 id="pageTitle">Auto-Off Speaker</h1>
+            <p>Configura el tiempo de uso de tu bocina y deja que el sistema se encargue del resto.</p>
+        </section>
+
+        <section class="card device-card" aria-labelledby="deviceTitle">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">CONEXIÓN</span>
+                    <h2 id="deviceTitle"><i data-lucide="radio-tower" aria-hidden="true"></i> Dispositivo Bluetooth</h2>
+                </div>
+                <span class="connection-badge" id="connectionBadge" role="status" aria-live="polite">
+                    <span class="dot" id="connectionDot" aria-hidden="true"></span>
+                    <span id="connectionStatus">Desconectado</span>
+                </span>
+            </div>
+            <div class="device-row">
+                <div class="device-identity">
+                    <span class="device-symbol" aria-hidden="true"><i data-lucide="bluetooth"></i></span>
+                    <div>
+                        <span class="label">Nombre del módulo</span>
+                        <strong class="device-name" id="deviceName">AutoOff_A</strong>
+                    </div>
+                </div>
+                <button id="btnConnect" class="btn btn-connect" type="button"><i data-lucide="bluetooth"
+                        aria-hidden="true"></i> Conectar Bluetooth</button>
+            </div>
+            <p class="helper" id="connectionHint" role="status" aria-live="polite">Selecciona tu ESP32 para conectarte.
+            </p>
+        </section>
+
+        <section class="card timers-card" aria-labelledby="timersTitle">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">CONFIGURACIÓN</span>
+                    <h2 id="timersTitle"><i data-lucide="timer" aria-hidden="true"></i> Temporizadores</h2>
+                </div>
+            </div>
+
+            <fieldset class="timer-group">
+                <legend><i data-lucide="clock-3" aria-hidden="true"></i> Tiempo de uso</legend>
+                <p>¿Durante cuánto tiempo quieres mantener activa la bocina?</p>
+                <div class="fields fields-use">
+                    <div class="field"><label for="usageHours">Horas</label><input id="usageHours" name="usageHours"
+                            type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{0,2}" data-max="23" value="0"
+                            autocomplete="off"></div>
+                    <span class="time-separator" aria-hidden="true">:</span>
+                    <div class="field"><label for="usageMinutes">Minutos</label><input id="usageMinutes"
+                            name="usageMinutes" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{0,2}"
+                            data-max="59" value="20" autocomplete="off">
+                    </div>
+                    <span class="time-separator" aria-hidden="true">:</span>
+                    <div class="field"><label for="usageSeconds">Segundos</label><input id="usageSeconds"
+                            name="usageSeconds" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{0,2}"
+                            data-max="59" value="0" autocomplete="off">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="timer-group">
+                <legend><i data-lucide="bell-ring" aria-hidden="true"></i> Tiempo de confirmación</legend>
+                <p>Tiempo disponible para presionar el botón físico cuando suene la alerta.</p>
+                <div class="fields fields-confirm">
+                    <div class="field"><label for="confirmMinutes">Minutos</label><input id="confirmMinutes"
+                            name="confirmMinutes" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{0,2}"
+                            data-max="59" value="0" autocomplete="off">
+                    </div>
+                    <span class="time-separator" aria-hidden="true">:</span>
+                    <div class="field"><label for="confirmSeconds">Segundos</label><input id="confirmSeconds"
+                            name="confirmSeconds" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{0,2}"
+                            data-max="59" value="5" autocomplete="off">
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="btnStart" type="button" disabled><i data-lucide="play"
+                        aria-hidden="true"></i> Iniciar</button>
+                <button class="btn btn-secondary" id="btnStop" type="button" disabled><i data-lucide="square"
+                        aria-hidden="true"></i> Detener</button>
+            </div>
+            <button class="btn btn-confirm" id="btnConfirm" type="button" disabled><i data-lucide="check-circle-2"
+                    aria-hidden="true"></i> Confirmar presencia</button>
+            <p class="helper">«Confirmar presencia» se habilita cuando el ESP32 solicita confirmación. El botón físico
+                sigue funcionando.</p>
+        </section>
+
+        <section class="card status-card" aria-labelledby="statusTitle">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">MONITOREO</span>
+                    <h2 id="statusTitle"><i data-lucide="activity" aria-hidden="true"></i> Estado del sistema</h2>
+                </div>
+                <span class="status-chip" id="modeBadge">SIN CONEXIÓN</span>
+            </div>
+            <div class="status-layout">
+                <div class="status-highlight">
+                    <span class="label">Estado actual</span>
+                    <strong id="systemStatus" class="status-text" role="status" aria-live="polite">Esperando
+                        conexión</strong>
+                    <span class="label countdown-label">Tiempo restante</span>
+                    <output id="remainingTime" class="remaining-time" aria-label="Tiempo restante">--:--:--</output>
+                </div>
+                <dl class="status-details">
+                    <div>
+                        <dt>Relé</dt>
+                        <dd id="relayStatus">Sin datos</dd>
+                    </div>
+                    <div>
+                        <dt>Alerta</dt>
+                        <dd id="alertStatus">Sin datos</dd>
+                    </div>
+                    <div>
+                        <dt>Modo</dt>
+                        <dd id="modeStatus">Sin datos</dd>
+                    </div>
+                </dl>
+            </div>
+            <p class="helper">Modo y tiempo recibidos del ESP32. Relé y alerta se estiman según el modo del firmware v3;
+                no son mediciones directas.</p>
+        </section>
+
+        <details class="card reference-card">
+            <summary><i data-lucide="terminal" aria-hidden="true"></i> Comandos BLE · referencia técnica</summary>
+            <p>Estos comandos serán enviados automáticamente por JavaScript; no tendrás que escribirlos.</p>
+            <dl class="command-list">
+                <div>
+                    <dt><code>START:uso:conf</code></dt>
+                    <dd>Inicia el temporizador con los valores admitidos por el firmware.</dd>
+                </div>
+                <div>
+                    <dt><code>STOP</code></dt>
+                    <dd>Detiene el temporizador.</dd>
+                </div>
+                <div>
+                    <dt><code>CONFIRM</code></dt>
+                    <dd>Confirma presencia, igual que el botón físico.</dd>
+                </div>
+            </dl>
+        </details>
+    </main>
+
+    <footer class="site-footer">Sensora <span aria-hidden="true">·</span> Auto-Off Speaker</footer>
+    <script src="script.js" defer></script>
+    <!-- Lucide dibuja los iconos. -->
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script>if (window.lucide) lucide.createIcons();</script>
+</body>
+
+</html>
